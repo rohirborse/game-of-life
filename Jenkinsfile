@@ -75,7 +75,7 @@ pipeline {
         ECS_CLUSTER = "skillgpt"
         ECS_SERVICE = "skillgpt"
         ECS_TASK_DEFINITION = "arn:aws:ecs:${AWS_DEFAULT_REGION}:${AWS_ACCOUNT_ID}:task-definition/task:2"
-        IMAGES_TO_DELETE = ""
+        IMAGES_TO_DELETE = "-"
     }
 
     stages {
