@@ -70,12 +70,12 @@ pipeline {
         AWS_ACCOUNT_ID = "561775821658"
         AWS_DEFAULT_REGION = "ap-south-1"
         IMAGE_REPO_NAME = "skill"
-        IMAGE_TAG = "v1"
+       // IMAGE_TAG = "v1"
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
         ECS_CLUSTER = "skillgpt"
         ECS_SERVICE = "skillgpt"
         ECS_TASK_DEFINITION = "arn:aws:ecs:${AWS_DEFAULT_REGION}:${AWS_ACCOUNT_ID}:task-definition/task:2"
-        IMAGES_TO_DELETE = "-"
+        IMAGES_TO_DELETE = "v1"
     }
 
     stages {
