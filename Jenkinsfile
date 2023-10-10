@@ -52,15 +52,14 @@ pipeline {
                // script {
                  //   sh "aws ecr batch-check-layer-availability --repository-name ${IMAGE_REPO_NAME} --region ${AWS_DEFAULT_REGION} --query 'layers[].layerDigest' --output json | jq -r '.[]' | xargs -I {} aws ecr batch-delete-image --repository-name ${IMAGE_REPO_NAME} --region ${AWS_DEFAULT_REGION} --image-ids imageDigest={}"
                // }
-     script {
-             INPUT_IMAGE_TO_DELETE = input message: 'Please Select Docker Image to delete', ok: 'Next',
-             parameters: [
-             choice(name: 'IMAGE_NAME', choices: getDockerImages(), description: 'Select Docker Image to delete')]
+   script {
+                    INPUT_IMAGE_TO_DELETE = input message: 'Please Select Docker Image to delete', ok: 'Next',
+                                                          parameters: [
+                                                          choice(name: 'IMAGE_NAME', choices: getDockerImages(), description: 'Select Docker Image to delete')]
                                                           
-             aws ecr batch-delete-image --region $AWS_DEFAULT_REGION --repository-name $REPOSITORY_URI --image-ids "$REPOSITORY_URI"
+                    aws ecr batch-delete-image --region $AWS_DEFAULT_REGION --repository-name $REPOSITORY_URI --image-ids "$REPOSITORY_URI"
                                       
                 }
-            
             }
         }
         
