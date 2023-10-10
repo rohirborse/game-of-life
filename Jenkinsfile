@@ -42,18 +42,29 @@ pipeline {
          }
         }
       }
-    stage('Deploy to ECS') {
-     steps {
-        script {
-                sh """
-                     aws ecs update-service \
-                     --cluster ${ECS_CLUSTER} \
-                     --service ${ECS_SERVICE} \
-                     --force-new-deployment \
-                     --region ${AWS_DEFAULT_REGION}
-                 """
+
+     // Deleting untagged images in ECR
+        stage('Deleting untagged images in ECR') {
+            steps {
+                script {
+                    sh "aws ecr batch-check-layer-availability --repository-name ${IMAGE_REPO_NAME} --region ${AWS_DEFAULT_REGION}"
+                    sh "aws ecr list-images --repository-name ${IMAGE_REPO_NAME} --filter 'tagStatus=UNTAGGED' --region ${AWS_DEFAULT_REGION} --query 'imageIds[*]' --output json | jq -r '.[] | .imageDigest' | xargs -I {} aws ecr batch-delete-image --repository-name ${IMAGE_REPO_NAME} --image-ids imageDigest={}"
                 }
             }
         }
+        
+//    stage('Deploy to ECS') {
+  //   steps {
+    //    script {
+      //          sh """
+        //             aws ecs update-service \
+          //           --cluster ${ECS_CLUSTER} \
+            //         --service ${ECS_SERVICE} \
+              //       --force-new-deployment \
+                //     --region ${AWS_DEFAULT_REGION}
+                // """
+               // }
+           // }
+       // }
     }   
 }
