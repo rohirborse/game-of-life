@@ -42,16 +42,35 @@ pipeline {
          }
         }
       }
-
-     // Deleting untagged images in ECR
-    stage('Delete Untagged ECR Images') {
-            when {
-                expression { IMAGES_TO_DELETE == "UNTAGGED" }
-            }
+    stages {
+        stage('Delete ECR Image') {
             steps {
                 script {
-                    sh "aws ecr batch-check-layer-availability --repository-name ${IMAGE_REPO_NAME} --region ${AWS_DEFAULT_REGION} --query 'layers[].layerDigest' --output json | jq -r '.[]' | xargs -I {} aws ecr batch-delete-image --repository-name ${IMAGE_REPO_NAME} --region ${AWS_DEFAULT_REGION} --image-ids imageDigest={}"
-                }        
+                    def ecrImageUri = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGES_TO_DELETE}"
+
+                    // Check if the image exists in ECR
+                    def imageExists = sh(script: "aws ecr describe-images --repository-name ${IMAGE_REPO_NAME} --image-ids imageTag=${IMAGES_TO_DELETE} --region ${AWS_DEFAULT_REGION}", returnStatus: true)
+
+                    if (imageExists == 0) {
+                        // Image exists, delete it
+                        sh "aws ecr batch-delete-image --repository-name ${ECR_REPOSITORY_NAME} --image-ids imageTag=${IMAGES_TO_DELETE} --region ${AWS_DEFAULT_REGION}"
+                        echo "Image '${IMAGES_TO_DELETE}' deleted from ECR repository '${IMAGE_REPO_NAME}'"
+                    } else {
+                        echo "Image '${IMAGES_TO_DELETE}' not found in ECR repository '${IMAGE_REPO_NAME}'"
+                    }
+                }
+            }
+        }
+    }
+     // Deleting untagged images in ECR
+    //stage('Delete Untagged ECR Images') {
+      //      when {
+        //        expression { IMAGES_TO_DELETE == "UNTAGGED" }
+          //  }
+            //steps {
+              //  script {
+                //    sh "aws ecr batch-check-layer-availability --repository-name ${IMAGE_REPO_NAME} --region ${AWS_DEFAULT_REGION} --query 'layers[].layerDigest' --output json | jq -r '.[]' | xargs -I {} aws ecr batch-delete-image --repository-name ${IMAGE_REPO_NAME} --region ${AWS_DEFAULT_REGION} --image-ids imageDigest={}"
+               // }        
 //    stage('Deploy to ECS') {
   //   steps {
     //    script {
@@ -66,5 +85,3 @@ pipeline {
            // }
        }
     }   
-}
-}
