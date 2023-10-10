@@ -44,11 +44,13 @@ pipeline {
       }
 
      // Deleting untagged images in ECR
-        stage('Deleting untagged images in ECR') {
+        stage('Delete Untagged ECR Images') {
+            when {
+                expression { IMAGES_TO_DELETE == "UNTAGGED" }
+            }
             steps {
                 script {
-                    sh "aws ecr batch-check-layer-availability --repository-name ${IMAGE_REPO_NAME} --region ${AWS_DEFAULT_REGION}"
-                    sh "aws ecr list-images --repository-name ${IMAGE_REPO_NAME} --filter 'tagStatus=UNTAGGED' --region ${AWS_DEFAULT_REGION} --query 'imageIds[*]' --output json | jq -r '.[] | .imageDigest' | xargs -I {} aws ecr batch-delete-image --repository-name ${IMAGE_REPO_NAME} --image-ids imageDigest={}"
+                    sh "aws ecr batch-check-layer-availability --repository-name ${IMAGE_REPO_NAME} --region ${AWS_DEFAULT_REGION} --query 'layers[].layerDigest' --output json | jq -r '.[]' | xargs -I {} aws ecr batch-delete-image --repository-name ${IMAGE_REPO_NAME} --region ${AWS_DEFAULT_REGION} --image-ids imageDigest={}"
                 }
             }
         }
