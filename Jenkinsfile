@@ -42,7 +42,6 @@ pipeline {
          }
         }
       }
-    stages {
         stage('Delete ECR Image') {
             steps {
                 script {
@@ -63,4 +62,4 @@ pipeline {
         }
     }
  }
-}   
+
